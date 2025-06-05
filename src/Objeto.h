@@ -1,20 +1,24 @@
-//
-// Created by aleja on 14/05/2025.
-//
+#ifndef OBJETO_H
+#define OBJETO_H
+
 #include <string>
 
 using namespace std;
 
-#ifndef OBJETO_H
-#define OBJETO_H
-
-
-
 class Objeto {
-    private:
-        string nombre;
-        string NivelRequerido;
+public:
+    Objeto() = default;
+    Objeto(int NivelDisponible, string NombreObjeto, string Tipo, float Porcentaje) ;
 
+    string getTipo();
+    string getNombre();
+    int getNivelDisponible();
+    int getPorcentajeAumento();
+private:
+    string Tipo;
+    string NombreObjeto;
+    int NivelDisponible;
+    float PorcentajeAumento;
 
 };
 

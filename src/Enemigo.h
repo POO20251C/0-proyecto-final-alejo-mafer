@@ -1,32 +1,16 @@
-//
-// Created by mafer on 14/05/2025.
-//
-
 #ifndef ENEMIGO_H
 #define ENEMIGO_H
+
 #include "Personaje.h"
-#include <string>
-using namespace std;
 
-
-
-class Enemigo : public Personaje{
-private:
-    string raza;
-
+class Enemigo : public Personaje {
 public:
     Enemigo() = default;
-    Enemigo(string tipo, string nombre);
+    Enemigo(std::string nombre, std::string tipo);
+    std::string getTipo();
 
-    void atacar(Personaje& objetivo) override;
-    void recibirDanio(float cantidad) override;
-    float calcularDanio(Personaje& objetivo) const override;
-
-    string getRaza() const;
-    void setRaza(const string& raza);
-
+private:
+    std::string tipo;
 };
 
-
-
-#endif //ENEMIGO_H
+#endif // ENEMIGO_H
