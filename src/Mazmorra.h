@@ -13,7 +13,7 @@ class Mazmorra {
 public:
   Enemigo *JefeSala;
   Objeto *ObjetoDeSala;
-  Mazmorra();
+  Mazmorra() = default;
 
 };
 
