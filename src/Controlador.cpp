@@ -204,25 +204,133 @@ void Controlador::CrearMazmorraz() {
 
         this->Mazmorras.push_back(nueva);
     }
-}s
+}
 
-void Controlador::Jugar(Usuario *jugador){
-	for( int i = 0; i < this->Mazmorras.size(); i++){
-          cout << "Bienvenido al Nivel " << i << endl;
-          cout << Mazmorras[i].JefeSala->getNombre() << " " << Mazmorras[i].JefeSala->getSalud() << endl;
-          cout << "\n\n\n\n\n\n" << endl;
-          bool escoger = true;
-          while(escoger){
-            int total = jugador->HeroesEscogidos.size();
-            vector< string > cursores(total, " ");
-            int CursorPos = 0;
-            cursores[CursorPos] = ">";
-          	for( int j = 0; i < this->Mazmorras.size(); j++){
-            	cout << cursores[j] << " " << jugador->HeroesEscogidos[j]->getNombre() << " Salud: " << jugador->HeroesEscogidos[j]->getSalud() << " Ataque " << jugador->HeroesEscogidos[j]->getAtaque() << " Defensa " << jugador->HeroesEscogidos[j]->getDefensa() << " \n " << endl;
-          	}
-            int tecla = _getch();
-          }
+void Controlador::Jugar(Usuario* jugador) {
+    srand(time(0));
 
+    for (int i = 0; i < this->Mazmorras.size(); i++) {
+        Enemigo* enemigo = Mazmorras[i].JefeSala;
 
-	}
+        cout << "\n======= Sala " << (i + 1) << " =======\n";
+        cout << "Enemigo: " << enemigo->getNombre()
+             << " | Salud: " << enemigo->getSalud() << "\n";
+
+        for (Heroe* h : jugador->HeroesEscogidos) {
+            cout << "Héroe: " << h->getNombre()
+                 << " | HP: " << h->getSalud()
+                 << " | ATK: " << h->getAtaque()
+                 << " | DEF: " << h->getDefensa() << endl;
+        }
+
+        // Determinar quién tiene la mayor velocidad
+        bool turnoJugador = true;
+        float velocidadMax = 0;
+
+        for (Heroe* h : jugador->HeroesEscogidos) {
+            if (h->getSalud() > 0 && h->getVelocidad() > velocidadMax) {
+                velocidadMax = h->getVelocidad();
+            }
+        }
+
+        if (enemigo->getVelocidad() > velocidadMax) {
+            turnoJugador = false;  // Enemigo empieza
+        }
+
+        bool salaActiva = true;
+
+        while (salaActiva) {
+            if (turnoJugador) {
+                // Turno del jugador
+                int total = jugador->HeroesEscogidos.size();
+                vector<string> cursores(total, " ");
+                int cursorPos = 0;
+                cursores[cursorPos] = ">";
+
+                bool elegido = false;
+
+                while (!elegido) {
+                    system("cls");
+                    cout << "Turno del jugador\n";
+                    cout << "=== Selecciona un héroe para atacar ===\n";
+
+                    for (int j = 0; j < total; j++) {
+                        Heroe* h = jugador->HeroesEscogidos[j];
+                        string estado = h->getSalud() > 0 ? "VIVO" : "KO";
+                        cout << cursores[j] << " " << h->getNombre()
+                             << " | HP: " << h->getSalud()
+                             << " (" << estado << ")\n";
+                    }
+
+                    int tecla = _getch();
+                    if (tecla == 80 && cursorPos < total - 1) { // Flecha abajo
+                        cursores[cursorPos] = " ";
+                        cursorPos++;
+                        cursores[cursorPos] = ">";
+                    } else if (tecla == 72 && cursorPos > 0) { // Flecha arriba
+                        cursores[cursorPos] = " ";
+                        cursorPos--;
+                        cursores[cursorPos] = ">";
+                    } else if (tecla == 13) { // ENTER
+                        Heroe* h = jugador->HeroesEscogidos[cursorPos];
+                        if (h->getSalud() <= 0) {
+                            cout << "\nEste héroe está KO. Elige otro.\n";
+                            system("pause");
+                        } else {
+                            cout << "\n golpe " << h->getNombre() << " ataca a " << enemigo->getNombre() << "...\n";
+                            h->atacar(enemigo);
+
+                            if (enemigo->getSalud() <= 0) {
+                                cout << "\n exito " << enemigo->getNombre() << " ha sido derrotado.\n";
+                                salaActiva = false;
+                            }
+                            elegido = true;
+                        }
+                    }
+                }
+
+                turnoJugador = false;
+            } else {
+                // Turno del enemigo
+                vector<Heroe*> vivos;
+                for (Heroe* h : jugador->HeroesEscogidos) {
+                    if (h->getSalud() > 0) vivos.push_back(h);
+                }
+
+                if (vivos.empty()) {
+                    cout << "\n Todos los héroes han caído. Fin del juego.\n";
+                    return;
+                }
+
+                int idx = rand() % vivos.size();
+                Heroe* objetivo = vivos[idx];
+
+                cout << "\n muerte  " << enemigo->getNombre() << " ataca a " << objetivo->getNombre() << "...\n";
+                enemigo->atacar(objetivo);
+
+                if (objetivo->getSalud() <= 0) {
+                    cout << "muerte " << objetivo->getNombre() << " ha sido derrotado.\n";
+                }
+
+                turnoJugador = true;
+                system("pause");
+            }
+
+            // Verificar si ya perdiste 2 héroes
+            int muertos = 0;
+            for (Heroe* h : jugador->HeroesEscogidos) {
+                if (h->getSalud() <= 0) muertos++;
+            }
+
+            if (muertos >= 2) {
+                cout << "\n Has perdido a 2 héroes. Fin del juego.\n";
+                return;
+            }
+        }
+
+        cout << "\n Sala " << (i + 1) << " superada. Avanzas.\n";
+        system("pause");
+    }
+
+    cout << "\n¡Felicidades! Has completado todas las salas de la mazmorra.\n";
 }
